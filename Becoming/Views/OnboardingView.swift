@@ -25,13 +25,14 @@ struct OnboardingView: View {
                 Spacer()
                 
                 Button(action: nextStep) {
-                    Text(currentStep == 3 ? "Start Your Journey" : "Continue")
-                        .font(.headline)
+                    Text(currentStep == 3 ? "Start your journey" : "Continue")
+                        .font(.custom("Times New Roman", size: 18))
+                        .fontWeight(.medium)
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .padding(16)
                         .background(Color.white)
-                        .cornerRadius(12)
+                        .cornerRadius(24)
                 }
                 .padding(.horizontal)
             }
@@ -42,14 +43,10 @@ struct OnboardingView: View {
     @ViewBuilder
     private func WelcomeStep() -> some View {
         VStack(spacing: 30) {
-            Text("BECOMING")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
             Text("Talk to your future self.")
-                .font(.title2)
-                .foregroundColor(.gray)
+                .font(.custom("Times New Roman", size: 28))
+                .fontWeight(.medium)
+                .foregroundColor(.white)
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 20) {
@@ -64,13 +61,13 @@ struct OnboardingView: View {
     @ViewBuilder
     private func NotificationStep() -> some View {
         VStack(spacing: 30) {
-            Text("Daily Reminder")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            Text("Daily reminder")
+                .font(.custom("Times New Roman", size: 32))
+                .fontWeight(.medium)
                 .foregroundColor(.white)
             
             Text("When should we remind you to record?")
-                .font(.title3)
+                .font(.custom("Times New Roman", size: 20))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
             
@@ -83,23 +80,23 @@ struct OnboardingView: View {
     @ViewBuilder
     private func OneTakeModeStep() -> some View {
         VStack(spacing: 30) {
-            Text("One Take Mode")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            Text("One take mode")
+                .font(.custom("Times New Roman", size: 32))
+                .fontWeight(.medium)
                 .foregroundColor(.white)
             
             Text("Force authenticity by limiting retakes")
-                .font(.title3)
+                .font(.custom("Times New Roman", size: 20))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 20) {
-                Toggle("Enable One Take Mode", isOn: $appState.oneTakeMode)
-                    .font(.headline)
+                Toggle("Enable one take mode", isOn: $appState.oneTakeMode)
+                    .font(.custom("Times New Roman", size: 18))
                     .foregroundColor(.white)
                 
                 Text("When enabled, you only get one attempt to record. This reduces perfectionism and keeps your logs authentic.")
-                    .font(.body)
+                    .font(.custom("Times New Roman", size: 16))
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
             }
@@ -109,26 +106,26 @@ struct OnboardingView: View {
     @ViewBuilder
     private func CompletionStep() -> some View {
         VStack(spacing: 30) {
-            Text("You're Ready!")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            Text("You're ready!")
+                .font(.custom("Times New Roman", size: 32))
+                .fontWeight(.medium)
                 .foregroundColor(.white)
             
             Text("Don't let your life go unrecorded.")
-                .font(.title3)
+                .font(.custom("Times New Roman", size: 20))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 15) {
                 Text("Remember:")
-                    .font(.headline)
+                    .font(.custom("Times New Roman", size: 18))
                     .foregroundColor(.white)
                 
                 Text("• Show up every day")
                 Text("• Speak honestly")
                 Text("• Watch yourself grow")
             }
-            .font(.body)
+            .font(.custom("Times New Roman", size: 16))
             .foregroundColor(.gray)
         }
     }
@@ -158,6 +155,7 @@ struct FeatureRow: View {
                 .frame(width: 24)
             
             Text(text)
+                .font(.custom("Times New Roman", size: 16))
                 .foregroundColor(.gray)
             
             Spacer()

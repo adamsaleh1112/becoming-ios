@@ -11,17 +11,11 @@ struct HomeView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 30) {
-                    // Header
-                    VStack(spacing: 10) {
-                        Text("BECOMING")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text(streakManager.streakMessage)
-                            .font(.title3)
-                            .foregroundColor(.gray)
-                    }
+                    // Header - Just the streak message now
+                    Text(streakManager.streakMessage)
+                        .font(.custom("Times New Roman", size: 20))
+                        .foregroundColor(.gray)
+                        .padding(.top, 20)
                     
                     // Streak Display
                     StreakCard()
@@ -49,39 +43,41 @@ struct HomeView: View {
         VStack(spacing: 15) {
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Current Streak")
-                        .font(.headline)
+                    Text("Current streak")
+                        .font(.custom("Times New Roman", size: 18))
                         .foregroundColor(.gray)
                     
                     Text("\(streakManager.currentStreak)")
-                        .font(.system(size: 48, weight: .bold))
+                        .font(.custom("Times New Roman", size: 48))
+                        .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
                 
                 Spacer()
                 
                 VStack(alignment: .trailing) {
-                    Text("Best Streak")
-                        .font(.headline)
+                    Text("Best streak")
+                        .font(.custom("Times New Roman", size: 18))
                         .foregroundColor(.gray)
                     
                     Text("\(streakManager.longestStreak)")
-                        .font(.system(size: 24, weight: .semibold))
+                        .font(.custom("Times New Roman", size: 24))
+                        .fontWeight(.semibold)
                         .foregroundColor(.orange)
                 }
             }
             
             Text(streakManager.consistencyTier)
-                .font(.subheadline)
+                .font(.custom("Times New Roman", size: 16))
                 .foregroundColor(.orange)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .background(Color.orange.opacity(0.2))
-                .cornerRadius(8)
+                .cornerRadius(24)
         }
-        .padding()
+        .padding(20)
         .background(Color.gray.opacity(0.1))
-        .cornerRadius(16)
+        .cornerRadius(24)
     }
     
     @ViewBuilder
@@ -93,13 +89,14 @@ struct HomeView: View {
                 Image(systemName: "video.fill")
                     .font(.system(size: 32))
                 
-                Text(videoManager.hasRecordedToday() ? "Record Again" : "Record Today")
-                    .font(.headline)
+                Text(videoManager.hasRecordedToday() ? "Record again" : "Record today")
+                    .font(.custom("Times New Roman", size: 18))
+                    .fontWeight(.medium)
             }
             .foregroundColor(.black)
-            .frame(width: 120, height: 120)
+            .frame(width: 140, height: 140)
             .background(Color.white)
-            .clipShape(Circle())
+            .cornerRadius(24)
         }
         .scaleEffect(videoManager.hasRecordedToday() ? 0.9 : 1.0)
         .opacity(videoManager.hasRecordedToday() ? 0.7 : 1.0)
@@ -113,20 +110,21 @@ struct HomeView: View {
                 .font(.title2)
             
             VStack(alignment: .leading) {
-                Text(videoManager.hasRecordedToday() ? "Recorded Today" : "Not Recorded Yet")
-                    .font(.headline)
+                Text(videoManager.hasRecordedToday() ? "Recorded today" : "Not recorded yet")
+                    .font(.custom("Times New Roman", size: 18))
+                    .fontWeight(.medium)
                     .foregroundColor(.white)
                 
                 Text(streakManager.motivationalMessage)
-                    .font(.subheadline)
+                    .font(.custom("Times New Roman", size: 16))
                     .foregroundColor(.gray)
             }
             
             Spacer()
         }
-        .padding()
+        .padding(20)
         .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .cornerRadius(24)
     }
 }
 

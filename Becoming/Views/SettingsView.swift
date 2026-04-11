@@ -16,7 +16,8 @@ struct SettingsView: View {
                         SettingsSection(title: "Notifications") {
                             VStack(spacing: 16) {
                                 HStack {
-                                    Text("Daily Reminder")
+                                    Text("Daily reminder")
+                                        .font(.custom("Times New Roman", size: 16))
                                         .foregroundColor(.white)
                                     Spacer()
                                     DatePicker("", selection: $appState.notificationTime, displayedComponents: .hourAndMinute)
@@ -24,17 +25,18 @@ struct SettingsView: View {
                                         .colorScheme(.dark)
                                 }
                                 
-                                Toggle("One Take Mode", isOn: $appState.oneTakeMode)
+                                Toggle("One take mode", isOn: $appState.oneTakeMode)
+                                    .font(.custom("Times New Roman", size: 16))
                                     .foregroundColor(.white)
                             }
                         }
                         
                         // Stats Section
-                        SettingsSection(title: "Your Journey") {
+                        SettingsSection(title: "Your journey") {
                             VStack(spacing: 16) {
-                                StatRow(label: "Current Streak", value: "\(streakManager.currentStreak) days")
-                                StatRow(label: "Longest Streak", value: "\(streakManager.longestStreak) days")
-                                StatRow(label: "Consistency Tier", value: streakManager.consistencyTier)
+                                StatRow(label: "Current streak", value: "\(streakManager.currentStreak) days")
+                                StatRow(label: "Longest streak", value: "\(streakManager.longestStreak) days")
+                                StatRow(label: "Consistency tier", value: streakManager.consistencyTier)
                             }
                         }
                         
@@ -117,15 +119,16 @@ struct SettingsSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.headline)
+                .font(.custom("Times New Roman", size: 18))
+                .fontWeight(.medium)
                 .foregroundColor(.white)
             
             VStack(spacing: 12) {
                 content
             }
-            .padding()
+            .padding(20)
             .background(Color.gray.opacity(0.1))
-            .cornerRadius(12)
+            .cornerRadius(24)
         }
     }
 }
@@ -137,9 +140,11 @@ struct StatRow: View {
     var body: some View {
         HStack {
             Text(label)
+                .font(.custom("Times New Roman", size: 16))
                 .foregroundColor(.gray)
             Spacer()
             Text(value)
+                .font(.custom("Times New Roman", size: 16))
                 .foregroundColor(.white)
                 .fontWeight(.semibold)
         }
@@ -153,9 +158,11 @@ struct InfoRow: View {
     var body: some View {
         HStack {
             Text(label)
+                .font(.custom("Times New Roman", size: 16))
                 .foregroundColor(.gray)
             Spacer()
             Text(value)
+                .font(.custom("Times New Roman", size: 16))
                 .foregroundColor(.white)
         }
     }
