@@ -184,5 +184,5 @@ struct CalendarDayView: View {
 #Preview {
     CalendarTimelineView()
         .environmentObject(VideoManager())
-        .background(Color.black)
+        .background(Color(red: 0.1, green: 0.1, blue: 0.1))
 }

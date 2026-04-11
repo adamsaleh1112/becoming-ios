@@ -8,7 +8,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color(red: 0.1, green: 0.1, blue: 0.1).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {

@@ -8,7 +8,7 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(red: 0.1, green: 0.1, blue: 0.1).ignoresSafeArea()
             
             VStack(spacing: 40) {
                 switch currentStep {

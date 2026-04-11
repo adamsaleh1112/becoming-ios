@@ -25,10 +25,15 @@ struct MainView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(red: 0.1, green: 0.1, blue: 0.1).ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Top Navigation
+                // Date Header
+                DateHeaderView()
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                
+                // Navigation
                 HStack {
                     Button(action: {
                         // Profile action - could show streak info
@@ -54,7 +59,7 @@ struct MainView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 10)
+                .padding(.top, 20)
                 
                 // Calendar Timeline
                 CalendarTimelineView()
@@ -90,6 +95,51 @@ struct MainView: View {
         .sheet(isPresented: $showingSettingsView) {
             SettingsView()
         }
+    }
+}
+
+struct DateHeaderView: View {
+    private let today = Date()
+    
+    private var dayNumber: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd"
+        return formatter.string(from: today)
+    }
+    
+    private var dayName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: today)
+    }
+    
+    private var monthAndDay: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM dd"
+        return formatter.string(from: today)
+    }
+    
+    var body: some View {
+        HStack {
+            // Large day number on the left
+            Text(dayNumber)
+                .font(.system(size: 80, weight: .bold))
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            // Day name and date on the right
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(dayName)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(.white)
+                
+                Text(monthAndDay)
+                    .font(.system(size: 16, weight: .regular))
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(.vertical, 10)
     }
 }
 
