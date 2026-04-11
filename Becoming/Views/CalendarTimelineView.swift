@@ -15,54 +15,57 @@ struct CalendarTimelineView: View {
     
     var body: some View {
         VStack(spacing: 30) {
-            // Month Header
-            HStack {
-                Button(action: previousMonth) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
-                }
-                
-                Spacer()
-                
-                Text(dateFormatter.string(from: selectedDate))
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Button(action: nextMonth) {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
-                }
-            }
-            .padding(.horizontal, 10)
+            // Month Header (centered, no arrows)
+            Text(dateFormatter.string(from: selectedDate))
+                .font(.system(size: 20, weight: .medium))
+                .foregroundColor(.white)
             
-            // Calendar Grid
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
+            // Swipable Calendar Container
+            VStack(spacing: 12) {
                 // Day headers
-                ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
-                    Text(day)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.gray)
-                        .frame(height: 20)
+                HStack {
+                    ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
+                        Text(day)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 20)
+                    }
                 }
                 
-                // Calendar days
-                ForEach(calendarDays, id: \.self) { date in
-                    CalendarDayView(
-                        date: date,
-                        hasVideo: hasVideoForDate(date),
-                        isCurrentMonth: calendar.isDate(date, equalTo: selectedDate, toGranularity: .month),
-                        isToday: calendar.isDateInToday(date)
-                    ) {
-                        if let video = videoManager.getVideoForDate(date) {
-                            selectedVideo = video
-                            showingVideoPlayer = true
+                // Calendar Grid with swipe gestures
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
+                    ForEach(calendarDays, id: \.self) { date in
+                        CalendarDayView(
+                            date: date,
+                            hasVideo: hasVideoForDate(date),
+                            isCurrentMonth: calendar.isDate(date, equalTo: selectedDate, toGranularity: .month),
+                            isToday: calendar.isDateInToday(date)
+                        ) {
+                            if let video = videoManager.getVideoForDate(date) {
+                                selectedVideo = video
+                                showingVideoPlayer = true
+                            }
                         }
                     }
                 }
+                .gesture(
+                    DragGesture()
+                        .onEnded { gesture in
+                            let threshold: CGFloat = 50
+                            if gesture.translation.x > threshold {
+                                // Swipe right - go to previous month
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    previousMonth()
+                                }
+                            } else if gesture.translation.x < -threshold {
+                                // Swipe left - go to next month
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    nextMonth()
+                                }
+                            }
+                        }
+                )
             }
         }
         .sheet(isPresented: $showingVideoPlayer) {
