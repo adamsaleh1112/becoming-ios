@@ -14,7 +14,7 @@ struct CalendarTimelineView: View {
     }()
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 30) {
             // Month Header
             HStack {
                 Button(action: previousMonth) {
@@ -40,7 +40,7 @@ struct CalendarTimelineView: View {
             .padding(.horizontal, 10)
             
             // Calendar Grid
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
                 // Day headers
                 ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
                     Text(day)
@@ -133,7 +133,7 @@ struct CalendarDayView: View {
                 // Background
                 RoundedRectangle(cornerRadius: 8)
                     .fill(backgroundColor)
-                    .frame(height: 40)
+                    .frame(height: 50)
                 
                 // Day number
                 Text(dayFormatter.string(from: date))

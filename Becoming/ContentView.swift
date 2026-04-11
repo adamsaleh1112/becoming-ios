@@ -33,37 +33,10 @@ struct MainView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
                 
-                // Navigation
-                HStack {
-                    Button(action: {
-                        // Profile action - could show streak info
-                    }) {
-                        VStack(spacing: 4) {
-                            Text("\(streakManager.currentStreak)")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.white)
-                            Text("days")
-                                .font(.system(size: 12))
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        showingSettingsView = true
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                
-                // Calendar Timeline
+                // Calendar Timeline - expanded to take more vertical space
                 CalendarTimelineView()
                     .padding(.horizontal, 20)
+                    .padding(.top, 30)
                 
                 Spacer()
             }
@@ -123,7 +96,7 @@ struct DateHeaderView: View {
         HStack {
             // Large day number on the left
             Text(dayNumber)
-                .font(.system(size: 80, weight: .bold))
+                .font(.system(size: 64, weight: .bold))
                 .foregroundColor(.white)
             
             Spacer()
@@ -131,11 +104,11 @@ struct DateHeaderView: View {
             // Day name and date on the right
             VStack(alignment: .trailing, spacing: 4) {
                 Text(dayName)
-                    .font(.system(size: 24, weight: .medium))
-                    .foregroundColor(.white)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.gray)
                 
                 Text(monthAndDay)
-                    .font(.system(size: 16, weight: .regular))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(.gray)
             }
         }
