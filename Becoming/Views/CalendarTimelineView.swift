@@ -53,12 +53,12 @@ struct CalendarTimelineView: View {
                     DragGesture()
                         .onEnded { gesture in
                             let threshold: CGFloat = 50
-                            if gesture.translation.x > threshold {
+                            if gesture.translation.width > threshold {
                                 // Swipe right - go to previous month
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     previousMonth()
                                 }
-                            } else if gesture.translation.x < -threshold {
+                            } else if gesture.translation.width < -threshold {
                                 // Swipe left - go to next month
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     nextMonth()
