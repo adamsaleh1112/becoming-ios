@@ -22,25 +22,42 @@ struct MainView: View {
     @EnvironmentObject var videoManager: VideoManager
     @EnvironmentObject var streakManager: StreakManager
     @State private var selectedDate = Date()
+    @State private var selectedTab = 0  // Home tab by default
     
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             // Home Tab
             HomeContentView(selectedDate: $selectedDate)
                 .tabItem {
                     Image(systemName: "calendar")
                 }
+                .tag(0)
+                .onAppear {
+                    HapticManager.shared.prepareMedium()
+                }
             
             // Record Tab
-            RecordingView()
+            RecordingView(onVideoSaved: {
+                selectedTab = 0
+            })
                 .tabItem {
                     Image(systemName: "video.fill")
+                }
+                .tag(1)
+                .onAppear {
+                    HapticManager.shared.prepareLight()
+                    HapticManager.shared.prepareMedium()
+                    HapticManager.shared.prepareRigid()
                 }
             
             // Settings Tab
             SettingsView()
                 .tabItem {
                     Image(systemName: "gearshape")
+                }
+                .tag(2)
+                .onAppear {
+                    HapticManager.shared.prepareLight()
                 }
         }
         .tint(.white)
@@ -80,6 +97,23 @@ struct HomeContentView: View {
 struct DateHeaderView: View {
     @Binding var selectedDate: Date
     @State private var isVisible = false
+    @EnvironmentObject var appState: AppState
+    
+    private var isToday: Bool {
+        Calendar.current.isDateInToday(selectedDate)
+    }
+    
+    private var accentColor: Color {
+        switch appState.accentColor {
+        case .red: return .red
+        case .orange: return .orange
+        case .yellow: return .yellow
+        case .green: return .green
+        case .blue: return .blue
+        case .purple: return .purple
+        case .gray: return .gray
+        }
+    }
     
     private var monthNumber: String {
         let formatter = DateFormatter()
@@ -99,20 +133,26 @@ struct DateHeaderView: View {
         return formatter.string(from: selectedDate)
     }
     
+    private var dayAbbreviation: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        return formatter.string(from: selectedDate)
+    }
+    
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             // Month (grayed out)
             Text(monthNumber)
-                .font(.system(size: 64, weight: .bold))
+                .font(.system(size: 58, weight: .bold))
                 //.fontWidth(.expanded)
                 .fontDesign(.rounded)
                 .foregroundColor(.white.opacity(0.4))
-                .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
+                .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .move(edge: .leading).combined(with: .opacity)))
                 .id("month-\(monthNumber)")
             
             // Day (white)
             Text(dayNumber)
-                .font(.system(size: 64, weight: .bold))
+                .font(.system(size: 58, weight: .bold))
                 //.fontWidth(.expanded)
                 .fontDesign(.rounded)
                 .foregroundColor(.white)
@@ -121,14 +161,33 @@ struct DateHeaderView: View {
             
             // Year (grayed out)
             Text(yearNumber)
-                .font(.system(size: 64, weight: .bold))
+                .font(.system(size: 58, weight: .bold))
                 //.fontWidth(.expanded)
                 .fontDesign(.rounded)
                 .foregroundColor(.white.opacity(0.4))
-                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .move(edge: .leading).combined(with: .opacity)))
+                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
                 .id("year-\(yearNumber)")
             
+            // Accent color bullet for today
+            if isToday {
+                Text("•")
+                    .font(.system(size: 58, weight: .bold))
+                    //.fontWidth(.expanded)
+                    .fontDesign(.rounded)
+                    .foregroundColor(accentColor)
+                    .padding(.leading, 4)
+                    .transition(.asymmetric(insertion: .scale(scale: 1.2).combined(with: .opacity), removal: .scale(scale: 0.8).combined(with: .opacity)))
+            }
+            
             Spacer()
+            
+            // Day of week abbreviation (top right)
+            Text(dayAbbreviation)
+                .font(.system(size: 26, weight: .medium))
+                .fontDesign(.rounded)
+                .foregroundColor(.white.opacity(0.5))
+                .transition(.opacity)
+                .id("dayAbbr-\(dayAbbreviation)")
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 4)

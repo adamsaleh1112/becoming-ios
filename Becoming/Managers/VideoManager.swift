@@ -132,4 +132,20 @@ class VideoManager: ObservableObject {
             saveVideoEntries()
         }
     }
+    
+    func resetAllVideos() {
+        // Delete all video and thumbnail files
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        
+        for entry in videoEntries {
+            try? FileManager.default.removeItem(at: documentsPath.appendingPathComponent(entry.videoFilename))
+            if let thumbnailFilename = entry.thumbnailFilename {
+                try? FileManager.default.removeItem(at: documentsPath.appendingPathComponent(thumbnailFilename))
+            }
+        }
+        
+        // Clear all entries
+        videoEntries.removeAll()
+        saveVideoEntries()
+    }
 }

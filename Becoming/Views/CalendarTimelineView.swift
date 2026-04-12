@@ -278,30 +278,58 @@ struct VideoPlayerView: View {
     let videoURL: URL
     let entry: VideoEntry
     @Environment(\.dismiss) private var dismiss
+    @State private var player: AVPlayer?
+    @State private var isLoading = true
     
     var body: some View {
         NavigationView {
             ZStack {
                 Color(red: 0.06, green: 0.06, blue: 0.06).ignoresSafeArea()
                 
-                VideoPlayer(player: AVPlayer(url: videoURL))
-                    .edgesIgnoringSafeArea(.all)
+                if let player = player {
+                    VideoPlayer(player: player)
+                        .edgesIgnoringSafeArea(.all)
+                        .onAppear {
+                            player.play()
+                        }
+                } else {
+                    // Loading state
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .tint(.white)
+                        Text("Loading video...")
+                            .foregroundColor(.gray)
+                    }
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
+                        player?.pause()
                         dismiss()
                     }
                     .foregroundColor(.white)
                 }
-                
                 ToolbarItem(placement: .principal) {
                     Text(formattedDate(entry.date))
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.white)
                 }
             }
+        }
+        .onAppear {
+            // Initialize player on main thread with slight delay for modal to present
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                let newPlayer = AVPlayer(url: videoURL)
+                self.player = newPlayer
+                newPlayer.play()
+            }
+        }
+        .onDisappear {
+            player?.pause()
+            player = nil
         }
         .preferredColorScheme(.dark)
     }

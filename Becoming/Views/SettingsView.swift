@@ -4,6 +4,7 @@ struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var notificationManager: NotificationManager
     @EnvironmentObject var streakManager: StreakManager
+    @EnvironmentObject var videoManager: VideoManager
     
     var body: some View {
         NavigationView {
@@ -207,6 +208,9 @@ struct SettingsView: View {
     }
     
     private func resetAllData() {
+        // Delete all videos and thumbnails
+        videoManager.resetAllVideos()
+        
         // Reset all user defaults
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "isOnboarded")
@@ -293,4 +297,5 @@ struct InfoRow: View {
         .environmentObject(AppState())
         .environmentObject(NotificationManager())
         .environmentObject(StreakManager())
+        .environmentObject(VideoManager())
 }

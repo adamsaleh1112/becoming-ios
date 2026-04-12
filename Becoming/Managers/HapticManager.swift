@@ -3,73 +3,60 @@ import UIKit
 class HapticManager {
     static let shared = HapticManager()
     
-    private let lightGenerator = UIImpactFeedbackGenerator(style: .light)
-    private let mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
-    private let softGenerator = UIImpactFeedbackGenerator(style: .soft)
-    private let rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
-    private let notificationGenerator = UINotificationFeedbackGenerator()
-    private let selectionGenerator = UISelectionFeedbackGenerator()
+    private init() {}
     
-    private init() {
-        // Prepare all generators upfront
-        lightGenerator.prepare()
-        mediumGenerator.prepare()
-        softGenerator.prepare()
-        rigidGenerator.prepare()
-        notificationGenerator.prepare()
-        selectionGenerator.prepare()
-    }
-    
+    // Create fresh generators each time to avoid invalidation issues
     func light() {
-        lightGenerator.prepare()
-        lightGenerator.impactOccurred()
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.prepare()
+        generator.impactOccurred()
     }
     
     func medium() {
-        mediumGenerator.prepare()
-        mediumGenerator.impactOccurred()
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.prepare()
+        generator.impactOccurred()
     }
     
     func soft() {
-        softGenerator.prepare()
-        softGenerator.impactOccurred()
+        let generator = UIImpactFeedbackGenerator(style: .soft)
+        generator.prepare()
+        generator.impactOccurred()
     }
     
     func rigid() {
-        rigidGenerator.prepare()
-        rigidGenerator.impactOccurred()
+        let generator = UIImpactFeedbackGenerator(style: .rigid)
+        generator.prepare()
+        generator.impactOccurred()
     }
     
     func success() {
-        notificationGenerator.prepare()
-        notificationGenerator.notificationOccurred(.success)
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.success)
     }
     
     func warning() {
-        notificationGenerator.prepare()
-        notificationGenerator.notificationOccurred(.warning)
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.warning)
     }
     
     func error() {
-        notificationGenerator.prepare()
-        notificationGenerator.notificationOccurred(.error)
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.error)
     }
     
     func selection() {
-        selectionGenerator.prepare()
-        selectionGenerator.selectionChanged()
+        let generator = UISelectionFeedbackGenerator()
+        generator.prepare()
+        generator.selectionChanged()
     }
     
-    // Preemptively prepare generators before user interaction
-    func prepareLight() {
-        lightGenerator.prepare()
-    }
-    
-    func prepareMedium() {
-        mediumGenerator.prepare()
-    }
-    
-    func prepareSoft() {
-        softGenerator.prepare()
-    }
+    // These are now no-ops since we create fresh generators
+    func prepareLight() {}
+    func prepareMedium() {}
+    func prepareSoft() {}
+    func prepareRigid() {}
 }

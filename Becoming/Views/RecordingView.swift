@@ -3,15 +3,17 @@ import AVFoundation
 import UIKit
 
 struct RecordingView: View {
-    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var videoManager: VideoManager
     @EnvironmentObject var streakManager: StreakManager
-    @EnvironmentObject var appState: AppState
     
     @StateObject private var cameraManager = CameraManager()
     @State private var recordedVideoURL: URL?
     @State private var showSaveButton = false
     @State private var isFrontCamera = true
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
+    
+    var onVideoSaved: (() -> Void)? = nil
     
     private let maxRecordingDuration: TimeInterval = 600 // 10 minutes
     
@@ -21,14 +23,29 @@ struct RecordingView: View {
             ZStack {
                 Color(red: 0.06, green: 0.06, blue: 0.06)
                 CameraPreviewView(cameraManager: cameraManager)
+                    .blur(radius: videoManager.hasRecordedToday() && !videoManager.isRecording && !showSaveButton ? 20 : 0)
+                    .opacity(videoManager.hasRecordedToday() && !videoManager.isRecording && !showSaveButton ? 0.5 : 1)
             }
             .ignoresSafeArea()
             .onTapGesture(count: 2) {
-                HapticManager.shared.medium()
-                flipCamera()
+                if !videoManager.hasRecordedToday() {
+                    // Delay slightly to ensure haptic works with camera
+                    DispatchQueue.main.async {
+                        HapticManager.shared.medium()
+                    }
+                    flipCamera()
+                }
             }
             .onAppear {
+                cameraManager.setupCamera()
                 cameraManager.updatePreviewFrame()
+                // Prepare haptics for immediate use
+                HapticManager.shared.prepareLight()
+                HapticManager.shared.prepareMedium()
+                HapticManager.shared.prepareRigid()
+            }
+            .onDisappear {
+                cameraManager.stopCamera()
             }
             
             // UI Overlay
@@ -93,7 +110,9 @@ struct RecordingView: View {
                             HStack {
                                 // Redo button on the left
                                 Button(action: {
-                                    HapticManager.shared.light()
+                                    DispatchQueue.main.async {
+                                        HapticManager.shared.light()
+                                    }
                                     showSaveButton = false
                                     recordedVideoURL = nil
                                 }) {
@@ -112,10 +131,18 @@ struct RecordingView: View {
                                 
                                 // Checkmark save button in the center
                                 Button(action: {
-                                    HapticManager.shared.medium()
+                                    DispatchQueue.main.async {
+                                        HapticManager.shared.medium()
+                                    }
                                     videoManager.saveVideo(url: url)
                                     streakManager.recordVideo()
-                                    dismiss()
+                                    
+                                    // Reset state
+                                    showSaveButton = false
+                                    recordedVideoURL = nil
+                                    
+                                    // Switch to calendar tab
+                                    onVideoSaved?()
                                 }) {
                                     ZStack {
                                         Circle()
@@ -142,30 +169,58 @@ struct RecordingView: View {
                         
                         // Record/Recording State
                         if !showSaveButton {
-                            Button(action: {
-                                videoManager.isRecording ? HapticManager.shared.rigid() : HapticManager.shared.medium()
-                                toggleRecording()
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(videoManager.isRecording ? Color.red : Color.white)
-                                        .frame(width: 80, height: 80)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.white.opacity(0.3), lineWidth: videoManager.isRecording ? 0 : 2)
-                                        )
+                            if videoManager.hasRecordedToday() {
+                                // Greyed out button when already recorded today
+                                VStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(width: 80, height: 80)
+                                        
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 32, weight: .bold))
+                                            .foregroundColor(.gray)
+                                    }
                                     
+                                    Text("Today's entry was already recorded")
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(.gray)
+                                }
+                            } else {
+                                // Normal record button
+                                Button(action: {
                                     if videoManager.isRecording {
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .fill(Color.white)
-                                            .frame(width: 24, height: 24)
+                                        DispatchQueue.main.async {
+                                            HapticManager.shared.rigid()
+                                        }
+                                    } else {
+                                        DispatchQueue.main.async {
+                                            HapticManager.shared.medium()
+                                        }
+                                    }
+                                    toggleRecording()
+                                }) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(videoManager.isRecording ? Color.red : Color.white)
+                                            .frame(width: 80, height: 80)
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: videoManager.isRecording ? 0 : 2)
+                                            )
+                                        
+                                        if videoManager.isRecording {
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .fill(Color.white)
+                                                .frame(width: 24, height: 24)
+                                        }
                                     }
                                 }
+                                .transition(.asymmetric(
+                                    insertion: .opacity.combined(with: .scale(scale: 1.1)),
+                                    removal: .opacity.combined(with: .scale(scale: 0.9))
+                                ))
                             }
-                            .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .scale(scale: 1.1)),
-                                removal: .opacity.combined(with: .scale(scale: 0.9))
-                            ))
                         }
                     }
                     .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0.3), value: showSaveButton)
@@ -201,10 +256,6 @@ struct RecordingView: View {
     private func flipCamera() {
         isFrontCamera.toggle()
         cameraManager.switchCamera(toFront: isFrontCamera)
-    }
-    
-    private func saveAndExit() {
-        dismiss()
     }
     
     private func formatTime(_ seconds: TimeInterval) -> String {
@@ -318,6 +369,15 @@ class CameraManager: NSObject, ObservableObject {
         }
     }
     
+    func stopCamera() {
+        guard let captureSession = captureSession else { return }
+        captureSession.stopRunning()
+        previewLayer?.removeFromSuperlayer()
+        previewLayer = nil
+        captureSession.removeInput(currentVideoInput!)
+        self.captureSession = nil
+    }
+    
     func startRecording(maxDuration: TimeInterval) {
         guard let videoOutput = videoOutput else { return }
         
@@ -348,5 +408,4 @@ extension CameraManager: AVCaptureFileOutputRecordingDelegate {
     RecordingView()
         .environmentObject(VideoManager())
         .environmentObject(StreakManager())
-        .environmentObject(AppState())
 }
