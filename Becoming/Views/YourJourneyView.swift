@@ -3,6 +3,7 @@ import SwiftUI
 struct YourJourneyView: View {
     @EnvironmentObject var videoManager: VideoManager
     @EnvironmentObject var streakManager: StreakManager
+    @EnvironmentObject var appState: AppState
     
     // Computed properties for statistics
     private var totalVideoEntries: Int {
@@ -135,7 +136,7 @@ struct YourJourneyView: View {
                                     .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
                                 
-                                Text("Consistency Tier: \(streakManager.consistencyTier)")
+                                Text(appState.isLowercaseMode ? "Consistency Tier: \(streakManager.consistencyTier)".lowercased() : "Consistency Tier: \(streakManager.consistencyTier)")
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(.gray)
                             }
@@ -156,6 +157,7 @@ struct JourneyStatRow: View {
     let iconColor: Color
     let label: String
     let value: String
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         HStack {
@@ -164,7 +166,7 @@ struct JourneyStatRow: View {
                 .foregroundColor(iconColor)
                 .frame(width: 28)
             
-            Text(label)
+            Text(appState.isLowercaseMode ? label.lowercased() : label)
                 .font(.system(size: 16))
                 .foregroundColor(.gray)
             

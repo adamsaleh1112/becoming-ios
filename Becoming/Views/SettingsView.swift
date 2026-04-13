@@ -21,7 +21,7 @@ struct SettingsView: View {
                                         .font(.system(size: 18))
                                         .foregroundColor(.gray)
                                         .frame(width: 28)
-                                    Text("Your name")
+                                    Text(appState.isLowercaseMode ? "Your name".lowercased() : "Your name")
                                         .font(.system(size: 16))
                                         .foregroundColor(appState.theme.textPrimary)
                                     Spacer()
@@ -38,7 +38,7 @@ struct SettingsView: View {
                                             .font(.system(size: 18))
                                             .foregroundColor(.gray)
                                             .frame(width: 28)
-                                        Text("Your journey")
+                                        Text(appState.isLowercaseMode ? "Your journey".lowercased() : "Your journey")
                                             .font(.system(size: 16))
                                             .foregroundColor(appState.theme.textPrimary)
                                         Spacer()
@@ -53,10 +53,10 @@ struct SettingsView: View {
                         
                         // Appearance Settings
                         SettingsSection(title: "Appearance") {
-                            VStack(spacing: 16) {
+                            VStack(spacing: 14) {
                                 // Theme selector
                                 HStack(spacing: 12) {
-                                    Text("Theme")
+                                    Text(appState.isLowercaseMode ? "Theme".lowercased() : "Theme")
                                         .font(.system(size: 16))
                                         .foregroundColor(appState.theme.textPrimary)
 
@@ -72,7 +72,7 @@ struct SettingsView: View {
                                             ZStack {
                                                 Circle()
                                                     .fill(!appState.isDarkMode ? appState.accentColor.swiftUIColor : Color.clear)
-                                                    .frame(width: 32, height: 32)
+                                                    .frame(width: 36, height: 36)
                                                 Image(systemName: "sun.max.fill")
                                                     .font(.system(size: 14, weight: .semibold))
                                                     .foregroundColor(!appState.isDarkMode ? .white : appState.theme.textSecondary)
@@ -89,7 +89,7 @@ struct SettingsView: View {
                                             ZStack {
                                                 Circle()
                                                     .fill(appState.isDarkMode ? appState.accentColor.swiftUIColor : Color.clear)
-                                                    .frame(width: 32, height: 32)
+                                                    .frame(width: 36, height: 36)
                                                 Image(systemName: "moon.fill")
                                                     .font(.system(size: 14, weight: .semibold))
                                                     .foregroundColor(appState.isDarkMode ? .white : appState.theme.textSecondary)
@@ -98,14 +98,14 @@ struct SettingsView: View {
                                         }
                                         .buttonStyle(PlainButtonStyle())
                                     }
-                                    .padding(4)
+                                    .padding(2)
                                     .background(appState.theme.cardBackground)
                                     .clipShape(Capsule())
                                 }
 
                                 // Casing selector
                                 HStack(spacing: 12) {
-                                    Text("Casing")
+                                    Text(appState.isLowercaseMode ? "Casing".lowercased() : "Casing")
                                         .font(.system(size: 16))
                                         .foregroundColor(appState.theme.textPrimary)
 
@@ -121,7 +121,7 @@ struct SettingsView: View {
                                             ZStack {
                                                 Circle()
                                                     .fill(!appState.isLowercaseMode ? appState.accentColor.swiftUIColor : Color.clear)
-                                                    .frame(width: 32, height: 32)
+                                                    .frame(width: 36, height: 36)
                                                 Image(systemName: "textformat.characters")
                                                     .font(.system(size: 14, weight: .semibold))
                                                     .foregroundColor(!appState.isLowercaseMode ? .white : appState.theme.textSecondary)
@@ -138,7 +138,7 @@ struct SettingsView: View {
                                             ZStack {
                                                 Circle()
                                                     .fill(appState.isLowercaseMode ? appState.accentColor.swiftUIColor : Color.clear)
-                                                    .frame(width: 32, height: 32)
+                                                    .frame(width: 36, height: 36)
                                                 Image(systemName: "characters.lowercase")
                                                     .font(.system(size: 14, weight: .semibold))
                                                     .foregroundColor(appState.isLowercaseMode ? .white : appState.theme.textSecondary)
@@ -147,7 +147,7 @@ struct SettingsView: View {
                                         }
                                         .buttonStyle(PlainButtonStyle())
                                     }
-                                    .padding(4)
+                                    .padding(2)
                                     .background(appState.theme.cardBackground)
                                     .clipShape(Capsule())
                                 }
@@ -156,7 +156,7 @@ struct SettingsView: View {
                                         .font(.system(size: 18))
                                         .foregroundColor(.gray)
                                         .frame(width: 28)
-                                    Text("Accent color")
+                                    Text(appState.isLowercaseMode ? "Accent color".lowercased() : "Accent color")
                                         .font(.system(size: 16))
                                         .foregroundColor(appState.theme.textPrimary)
                                     Spacer()
@@ -185,13 +185,13 @@ struct SettingsView: View {
                                         .font(.system(size: 18))
                                         .foregroundColor(.gray)
                                         .frame(width: 28)
-                                    Text("Daily reminder")
+                                    Text(appState.isLowercaseMode ? "Daily reminder".lowercased() : "Daily reminder")
                                         .font(.system(size: 16))
                                         .foregroundColor(appState.theme.textPrimary)
                                     Spacer()
                                     DatePicker("", selection: $appState.notificationTime, displayedComponents: .hourAndMinute)
                                         .labelsHidden()
-                                        .colorScheme(.dark)
+                                        .environment(\.colorScheme, appState.isDarkMode ? .dark : .light)
                                 }
                             }
                         }
@@ -205,14 +205,14 @@ struct SettingsView: View {
                                         .font(.system(size: 18))
                                         .foregroundColor(.gray)
                                         .frame(width: 28)
-                                    InfoRow(label: "Version", value: "1.0.0")
+                                    InfoRow(label: appState.isLowercaseMode ? "Version".lowercased() : "Version", value: "1.0.0")
                                 }
                                 HStack {
                                     Image(systemName: "number")
                                         .font(.system(size: 18))
                                         .foregroundColor(.gray)
                                         .frame(width: 28)
-                                    InfoRow(label: "Build", value: "1")
+                                    InfoRow(label: appState.isLowercaseMode ? "Build".lowercased() : "Build", value: "1")
                                 }
                             }
                         }
@@ -225,7 +225,7 @@ struct SettingsView: View {
                                         .font(.system(size: 18))
                                         .foregroundColor(.red)
                                         .frame(width: 28)
-                                    Button("Reset Streak") {
+                                    Button(appState.isLowercaseMode ? "Reset Streak".lowercased() : "Reset Streak") {
                                         resetStreak()
                                     }
                                     .foregroundColor(.red)
@@ -237,7 +237,7 @@ struct SettingsView: View {
                                         .font(.system(size: 18))
                                         .foregroundColor(.red)
                                         .frame(width: 28)
-                                    Button("Reset All Data") {
+                                    Button(appState.isLowercaseMode ? "Reset All Data".lowercased() : "Reset All Data") {
                                         resetAllData()
                                     }
                                     .foregroundColor(.red)
@@ -314,7 +314,7 @@ struct SettingsSection<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title)
+            Text(appState.isLowercaseMode ? title.lowercased() : title)
                 .font(.system(size: 18, weight: .medium))
                 .foregroundColor(appState.theme.textPrimary)
 

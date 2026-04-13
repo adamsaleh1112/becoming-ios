@@ -53,7 +53,7 @@ struct OnboardingView: View {
                 
                 // Button with animation
                 Button(action: nextStep) {
-                    Text(buttonText)
+                    Text(appState.isLowercaseMode ? buttonText.lowercased() : buttonText)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundColor(currentStep == 3 ? .white : .black)
                         .frame(maxWidth: .infinity)
@@ -97,17 +97,17 @@ struct OnboardingView: View {
     @ViewBuilder
     private func WelcomeStep() -> some View {
         VStack(spacing: 50) {
-            Text("Talk to your future self.")
+            Text(appState.isLowercaseMode ? "Talk to your future self.".lowercased() : "Talk to your future self.")
                 .font(.system(size: 38, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
             
             VStack(spacing: 24) {
-                FeatureRow(icon: "video.fill", text: "Record daily video logs")
-                FeatureRow(icon: "flame.fill", text: "Build consistency streaks")
-                FeatureRow(icon: "clock.fill", text: "Max 10 minutes per day")
-                FeatureRow(icon: "heart.fill", text: "Watch yourself grow")
+                FeatureRow(icon: "video.fill", text: appState.isLowercaseMode ? "Record daily video logs".lowercased() : "Record daily video logs")
+                FeatureRow(icon: "flame.fill", text: appState.isLowercaseMode ? "Build consistency streaks".lowercased() : "Build consistency streaks")
+                FeatureRow(icon: "clock.fill", text: appState.isLowercaseMode ? "Max 10 minutes per day".lowercased() : "Max 10 minutes per day")
+                FeatureRow(icon: "heart.fill", text: appState.isLowercaseMode ? "Watch yourself grow".lowercased() : "Watch yourself grow")
             }
             .transition(.opacity.combined(with: .offset(y: 20)))
         }
@@ -117,12 +117,12 @@ struct OnboardingView: View {
     @ViewBuilder
     private func NotificationStep() -> some View {
         VStack(spacing: 50) {
-            Text("Daily reminder")
+            Text(appState.isLowercaseMode ? "Daily reminder".lowercased() : "Daily reminder")
                 .font(.system(size: 38, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
             
-            Text("When should we remind you to record?")
+            Text(appState.isLowercaseMode ? "When should we remind you to record?".lowercased() : "When should we remind you to record?")
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
@@ -140,7 +140,7 @@ struct OnboardingView: View {
     @ViewBuilder
     private func NameStep() -> some View {
         VStack(spacing: 50) {
-            Text("What's your name?")
+            Text(appState.isLowercaseMode ? "What's your name?".lowercased() : "What's your name?")
                 .font(.system(size: 38, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -167,12 +167,12 @@ struct OnboardingView: View {
     @ViewBuilder
     private func CompletionStep() -> some View {
         VStack(spacing: 50) {
-            Text("You're ready!")
+            Text(appState.isLowercaseMode ? "You're ready!".lowercased() : "You're ready!")
                 .font(.system(size: 38, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
             
-            Text("Don't let your life go unrecorded.")
+            Text(appState.isLowercaseMode ? "Don't let your life go unrecorded.".lowercased() : "Don't let your life go unrecorded.")
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
