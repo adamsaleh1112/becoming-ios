@@ -40,6 +40,7 @@ struct RecordingView: View {
                 CameraPreviewView(cameraManager: cameraManager)
                     .blur(radius: videoManager.hasRecordedToday() && !videoManager.isRecording && !showSaveButton ? 20 : 0)
                     .opacity(videoManager.hasRecordedToday() && !videoManager.isRecording && !showSaveButton ? 0.5 : 1)
+                    .offset(y: -20)
             }
             .ignoresSafeArea()
             .onTapGesture(count: 2) {
@@ -111,6 +112,7 @@ struct RecordingView: View {
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
                         .padding(.top, 8)
+                        .offset(y: -16)
                         .transition(.asymmetric(
                             insertion: .opacity.animation(.easeInOut(duration: 0.4)),
                             removal: .opacity.animation(.easeInOut(duration: 0.3))
@@ -529,7 +531,7 @@ class CameraManager: NSObject, ObservableObject {
         
         // Setup preview layer
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer?.videoGravity = .resizeAspectFill
+        previewLayer?.videoGravity = .resizeAspect
         previewLayer?.frame = previewView.bounds
         
         if let previewLayer = previewLayer {
