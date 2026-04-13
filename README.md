@@ -1,5 +1,7 @@
 # Becoming
 
+**Talk to your future self.**
+
 Becoming is a platform built to bring daily video journaling back to the center of personal growth.
 
 It gives you a single place to record authentic daily reflections, track your consistency, and watch your progress unfold over time — all in a high-contrast, minimalist interface designed for focus.
@@ -13,24 +15,44 @@ It gives you a single place to record authentic daily reflections, track your co
 - Front camera by default for personal reflection
 - 10-minute limit to prevent perfectionism
 - Camera flip button for different perspectives
+- Rate your day 1-10 with visual feedback
+- High-quality 1920x1080 30fps recording
 
 📅 Calendar Timeline
 - Visual calendar with video thumbnails
 - Swipe horizontally through months
 - Tap any day to watch that entry
 - Blue dot indicator for today
+- Rating color dots on each day
 
 🔥 Streak Tracking
 - Identity-based feedback ("You've shown up X days")
 - Consistency tiers from beginner to life chronicler
 - Daily motivational push notifications
 - Built for habit formation
+- Interactive streak popup with celebratory glint animation
+- Color-coded streak display based on streak length
+
+📊 Journey Analytics
+- Comprehensive "Your Journey" statistics dashboard
+- Total video entries count
+- Rating breakdowns: Perfect (10), Good (7-9), Mid (5-6), Bad (1-4)
+- Date started tracking
+- Longest and current streak display
+- Consistency tier progression
 
 🔒 Privacy First
 - All videos stored locally on device
 - No data sent to external servers
 - You own your content completely
 - Secure and private by design
+
+🎨 Modern Design
+- High-contrast dark UI theme
+- Smooth spring animations throughout
+- Rounded capsules and cards
+- Intuitive tab navigation
+- Haptic feedback for interactions
 
 ---
 
@@ -59,23 +81,32 @@ The goal is simple:
 
 ### `$ current-status`
 
-✅ Implemented
+✅ **Implemented v1.0**
 - Full-screen video recording interface
 - Calendar timeline with horizontal swiping
 - Video thumbnail generation and display
-- Streak tracking system
-- Daily notification scheduling
+- Streak tracking system with interactive popup
+- Daily notification scheduling with contextual permissions
 - Video playback with native player
-- High-contrast black UI design
+- High-contrast dark UI design
 - Front/back camera switching
 - Animated recording timer
+- Day rating system (1-10 scale) with visual feedback
+- Your Journey analytics dashboard
+- Name input during onboarding
+- Optimized video compression (MP4)
+- Background processing for file operations
+- Cached haptic feedback for instant response
+- Smooth spring animations across all popups
+- Entry status navigation to recording screen
 
-🚧 In Progress
+🚧 **Future Enhancements**
 - Cloud backup integration
 - "On this day" feature (1 year ago videos)
 - Side-by-side year comparisons
 - Export and sharing features
-- Mood tracking dashboard
+- Widget support for home screen
+- iCloud sync across devices
 
 ---
 

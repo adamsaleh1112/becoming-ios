@@ -6,6 +6,10 @@ class StreakManager: ObservableObject {
     @Published var lastRecordingDate: Date?
     @Published var consistencyTier: String = "Getting Started"
     
+    // Cache calendar for performance
+    private let calendar = Calendar.current
+    
+    // Cache consistency tiers
     private let consistencyTiers = [
         (0, "Getting Started"),
         (7, "Building Momentum"),
@@ -13,6 +17,9 @@ class StreakManager: ObservableObject {
         (100, "Dedicated Documenter"),
         (365, "Life Chronicler")
     ]
+    
+    // Batch UserDefaults writes
+    private var needsSave = false
     
     init() {
         loadStreakData()
@@ -22,8 +29,13 @@ class StreakManager: ObservableObject {
     func recordVideo() {
         let today = Date()
         
+        // Check if already recorded today to avoid duplicate processing
+        if let lastDate = lastRecordingDate, calendar.isDate(lastDate, inSameDayAs: today) {
+            return
+        }
+        
         if let lastDate = lastRecordingDate {
-            let daysBetween = Calendar.current.dateComponents([.day], from: lastDate, to: today).day ?? 0
+            let daysBetween = calendar.dateComponents([.day], from: lastDate, to: today).day ?? 0
             
             if daysBetween == 1 {
                 // Consecutive day
@@ -32,7 +44,6 @@ class StreakManager: ObservableObject {
                 // Streak broken
                 currentStreak = 1
             }
-            // If daysBetween == 0, already recorded today, don't change streak
         } else {
             // First recording ever
             currentStreak = 1
@@ -45,26 +56,34 @@ class StreakManager: ObservableObject {
         }
         
         updateConsistencyTier()
-        saveStreakData()
+        needsSave = true
+        
+        // Batch save after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if self.needsSave {
+                self.saveStreakData()
+            }
+        }
     }
     
     func checkDailyStreak() {
         guard let lastDate = lastRecordingDate else { return }
         
         let today = Date()
-        let daysBetween = Calendar.current.dateComponents([.day], from: lastDate, to: today).day ?? 0
+        let daysBetween = calendar.dateComponents([.day], from: lastDate, to: today).day ?? 0
         
         if daysBetween > 1 {
             // Streak is broken
             currentStreak = 0
             updateConsistencyTier()
+            needsSave = true
             saveStreakData()
         }
     }
     
     func hasRecordedToday() -> Bool {
         guard let lastDate = lastRecordingDate else { return false }
-        return Calendar.current.isDate(lastDate, inSameDayAs: Date())
+        return calendar.isDate(lastDate, inSameDayAs: Date())
     }
     
     private func updateConsistencyTier() {
@@ -114,12 +133,17 @@ class StreakManager: ObservableObject {
     }
     
     private func saveStreakData() {
-        UserDefaults.standard.set(currentStreak, forKey: "currentStreak")
-        UserDefaults.standard.set(longestStreak, forKey: "longestStreak")
+        guard needsSave else { return }
+        
+        let defaults = UserDefaults.standard
+        defaults.set(currentStreak, forKey: "currentStreak")
+        defaults.set(longestStreak, forKey: "longestStreak")
         
         if let lastDate = lastRecordingDate,
            let dateData = try? JSONEncoder().encode(lastDate) {
-            UserDefaults.standard.set(dateData, forKey: "lastRecordingDate")
+            defaults.set(dateData, forKey: "lastRecordingDate")
         }
+        
+        needsSave = false
     }
 }

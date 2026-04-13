@@ -6,10 +6,11 @@ struct OnboardingView: View {
     @EnvironmentObject var notificationManager: NotificationManager
     @State private var selectedTime = Date()
     @State private var currentStep = 0
+    @State private var userName = ""
     
     var body: some View {
         ZStack {
-            Color(red: 0.1, green: 0.1, blue: 0.1).ignoresSafeArea()
+            Color(red: 0.06, green: 0.06, blue: 0.06).ignoresSafeArea()
             
             VStack(alignment: .center, spacing: 0) {
                 Spacer()
@@ -30,6 +31,12 @@ struct OnboardingView: View {
                                     insertion: .opacity.combined(with: .offset(x: 50)),
                                     removal: .opacity.combined(with: .offset(x: -50))
                                 ))
+                        case 2:
+                            NameStep()
+                                .transition(.asymmetric(
+                                    insertion: .opacity.combined(with: .offset(x: 50)),
+                                    removal: .opacity.combined(with: .offset(x: -50))
+                                ))
                         default:
                             CompletionStep()
                                 .transition(.asymmetric(
@@ -46,8 +53,8 @@ struct OnboardingView: View {
                 
                 // Button with animation
                 Button(action: nextStep) {
-                    Text(currentStep == 2 ? "Start your journey" : "Continue")
-                        .font(.system(size: 18, weight: .semibold))
+                    Text(buttonText)
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
@@ -75,7 +82,7 @@ struct OnboardingView: View {
     private func WelcomeStep() -> some View {
         VStack(spacing: 50) {
             Text("Talk to your future self.")
-                .font(.system(size: 34, weight: .bold))
+                .font(.system(size: 38, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -95,12 +102,12 @@ struct OnboardingView: View {
     private func NotificationStep() -> some View {
         VStack(spacing: 50) {
             Text("Daily reminder")
-                .font(.system(size: 38, weight: .bold))
+                .font(.system(size: 38, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
             
             Text("When should we remind you to record?")
-                .font(.system(size: 22))
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
                 .transition(.opacity.combined(with: .offset(y: 15)))
@@ -115,35 +122,73 @@ struct OnboardingView: View {
     }
     
     @ViewBuilder
+    private func NameStep() -> some View {
+        VStack(spacing: 50) {
+            Text("What's your name?")
+                .font(.system(size: 38, weight: .semibold, design: .rounded))
+                .foregroundColor(.white)
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            
+            TextField("Enter name", text: $userName)
+                .font(.system(size: 32, weight: .medium, design: .rounded))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                // .background(
+                //     RoundedRectangle(cornerRadius: 16)
+                //         .fill(Color.white.opacity(0.08))
+                // )
+                // .overlay(
+                //     RoundedRectangle(cornerRadius: 16)
+                //         .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                // )
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        }
+        .padding(.horizontal, 32)
+    }
+    
+    @ViewBuilder
     private func CompletionStep() -> some View {
         VStack(spacing: 50) {
             Text("You're ready!")
-                .font(.system(size: 38, weight: .bold))
+                .font(.system(size: 38, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
             
             Text("Don't let your life go unrecorded.")
-                .font(.system(size: 22))
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
                 .transition(.opacity.combined(with: .offset(y: 15)))
             
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Remember:")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white)
+            // VStack(alignment: .leading, spacing: 20) {
+            //     Text("Remember:")
+            //         .font(.system(size: 20, weight: .semibold, design: .rounded))
+            //         .foregroundColor(.white)
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("• Show up every day")
-                    Text("• Speak honestly")
-                    Text("• Watch yourself grow")
-                }
-                .font(.system(size: 18))
-                .foregroundColor(.gray)
-            }
-            .transition(.opacity.combined(with: .offset(y: 20)))
+            //     VStack(alignment: .leading, spacing: 12) {
+            //         Text("• Show up every day")
+            //         Text("• Speak honestly")
+            //         Text("• Watch yourself grow")
+            //     }
+            //     .font(.system(size: 18))
+            //     .foregroundColor(.gray)
+            // }
+            // .transition(.opacity.combined(with: .offset(y: 20)))
         }
         .padding(.horizontal, 32)
+    }
+    
+    private var buttonText: String {
+        switch currentStep {
+        case 2: // Name step
+            return userName.isEmpty ? "Skip" : "Continue"
+        case 3: // Completion step
+            return "Start your journey"
+        default:
+            return "Continue"
+        }
     }
     
     private func nextStep() {
@@ -151,7 +196,19 @@ struct OnboardingView: View {
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
         
-        if currentStep < 2 {
+        if currentStep < 3 {
+            // Save notification time after step 1 and request permission
+            if currentStep == 1 {
+                // appState.notificationTime = selectedTime
+                // Request notification permission now that user has selected a time
+                notificationManager.requestPermission()
+                notificationManager.scheduleDailyNotification(at: selectedTime, streak: 0, userName: appState.userName)
+            }
+            // Save name after step 2 (only if not empty)
+            else if currentStep == 2 && !userName.isEmpty {
+                appState.userName = userName
+            }
+            
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 currentStep += 1
             }

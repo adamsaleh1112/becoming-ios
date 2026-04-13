@@ -1,7 +1,6 @@
 import Foundation
 import AVFoundation
 import Photos
-import UIKit
 
 class VideoManager: ObservableObject {
     @Published var videoEntries: [VideoEntry] = []
@@ -10,6 +9,12 @@ class VideoManager: ObservableObject {
     
     private let maxRecordingDuration: TimeInterval = 600 // 10 minutes
     private var recordingTimer: Timer?
+    
+    // Cache documents path for performance
+    private lazy var documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    
+    // Background queue for file operations
+    private let fileQueue = DispatchQueue(label: "video.file.operations", qos: .utility)
     
     init() {
         loadVideoEntries()
@@ -33,51 +38,90 @@ class VideoManager: ObservableObject {
         recordingTimer = nil
     }
     
-    func saveVideo(url: URL) {
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    func saveVideo(url: URL, rating: Int? = nil) {
         let timestamp = Date().timeIntervalSince1970
-        let fileName = "video_\(timestamp).mov"
+        let fileName = "video_\(timestamp).mp4"
         let destinationURL = documentsPath.appendingPathComponent(fileName)
         
-        do {
-            try FileManager.default.copyItem(at: url, to: destinationURL)
+        fileQueue.async { [weak self] in
+            guard let self = self else { return }
             
-            // Generate thumbnail
-            let thumbnailFilename = generateThumbnail(for: destinationURL, timestamp: timestamp)
+            // Generate thumbnail first (faster on background queue)
+            let thumbnailFilename = self.generateThumbnail(for: url, timestamp: timestamp)
             
-            // Create VideoEntry with relative paths (filenames only)
+            // Export with compression
+            let asset = AVURLAsset(url: url)
+            guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1920x1080) else {
+                try? FileManager.default.copyItem(at: url, to: destinationURL)
+                self.createVideoEntry(fileName: fileName, thumbnailFilename: thumbnailFilename, rating: rating)
+                return
+            }
+            
+            exportSession.outputURL = destinationURL
+            exportSession.outputFileType = .mp4
+            exportSession.shouldOptimizeForNetworkUse = true
+            
+            exportSession.exportAsynchronously {
+                self.createVideoEntry(fileName: fileName, thumbnailFilename: thumbnailFilename, rating: rating)
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+    }
+    
+    private func createVideoEntry(fileName: String, thumbnailFilename: String?, rating: Int?) {
+        DispatchQueue.main.async {
             let videoEntry = VideoEntry(
                 date: Date(),
                 videoFilename: fileName,
-                duration: recordingDuration,
-                thumbnailFilename: thumbnailFilename
+                duration: self.recordingDuration,
+                thumbnailFilename: thumbnailFilename,
+                rating: rating
             )
             
-            videoEntries.insert(videoEntry, at: 0)
-            saveVideoEntries()
-            
-        } catch {
-            print("Error saving video: \(error)")
+            self.videoEntries.insert(videoEntry, at: 0)
+            self.saveVideoEntries()
         }
     }
     
     private func generateThumbnail(for videoURL: URL, timestamp: TimeInterval) -> String? {
-        let asset = AVAsset(url: videoURL)
+        let asset = AVURLAsset(url: videoURL, options: [
+            AVURLAssetPreferPreciseDurationAndTimingKey: false,
+            AVURLAssetReferenceRestrictionsKey: AVAssetReferenceRestrictions.forbidAll.rawValue
+        ])
+        
         let imageGenerator = AVAssetImageGenerator(asset: asset)
         imageGenerator.appliesPreferredTrackTransform = true
+        imageGenerator.maximumSize = CGSize(width: 300, height: 533) // Direct target size
+        imageGenerator.requestedTimeToleranceBefore = .zero
+        imageGenerator.requestedTimeToleranceAfter = CMTime(seconds: 0.5, preferredTimescale: 1)
         
-        let time = CMTime(seconds: 1, preferredTimescale: 60)
+        let time = CMTime(seconds: 0.5, preferredTimescale: 1)
         
         do {
             let cgImage = try imageGenerator.copyCGImage(at: time, actualTime: nil)
-            let image = UIImage(cgImage: cgImage)
-            
             let filename = "thumb_\(timestamp).jpg"
-            let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let thumbnailURL = documentsPath.appendingPathComponent(filename)
             
-            if let data = image.jpegData(compressionQuality: 0.7) {
-                try data.write(to: thumbnailURL)
+            // Create CGContext for more efficient rendering
+            let colorSpace = CGColorSpaceCreateDeviceRGB()
+            guard let context = CGContext(data: nil, width: 300, height: 533, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+                return nil
+            }
+            
+            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: 300, height: 533))
+            
+            guard let resizedCGImage = context.makeImage() else { return nil }
+            
+            // Convert to JPEG data directly
+            let mutableData = NSMutableData()
+            guard let destination = CGImageDestinationCreateWithData(mutableData, "public.jpeg" as CFString, 1, nil) else {
+                return nil
+            }
+            
+            CGImageDestinationAddImage(destination, resizedCGImage, [kCGImageDestinationLossyCompressionQuality: 0.6] as CFDictionary)
+            
+            if CGImageDestinationFinalize(destination) {
+                try mutableData.write(to: thumbnailURL)
                 return filename
             }
         } catch {
@@ -119,17 +163,17 @@ class VideoManager: ObservableObject {
     }
     
     func deleteVideo(_ entry: VideoEntry) {
-        if let index = videoEntries.firstIndex(where: { $0.id == entry.id }) {
-            videoEntries.remove(at: index)
-            
-            // Delete the actual files
-            let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            try? FileManager.default.removeItem(at: documentsPath.appendingPathComponent(entry.videoFilename))
+        guard let index = videoEntries.firstIndex(where: { $0.id == entry.id }) else { return }
+        
+        videoEntries.remove(at: index)
+        saveVideoEntries()
+        
+        // Delete files on background queue
+        fileQueue.async {
+            try? FileManager.default.removeItem(at: self.documentsPath.appendingPathComponent(entry.videoFilename))
             if let thumbnailFilename = entry.thumbnailFilename {
-                try? FileManager.default.removeItem(at: documentsPath.appendingPathComponent(thumbnailFilename))
+                try? FileManager.default.removeItem(at: self.documentsPath.appendingPathComponent(thumbnailFilename))
             }
-            
-            saveVideoEntries()
         }
     }
     

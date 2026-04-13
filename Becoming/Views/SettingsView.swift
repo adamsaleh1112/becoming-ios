@@ -31,6 +31,23 @@ struct SettingsView: View {
                                         .multilineTextAlignment(.trailing)
                                         .frame(maxWidth: 150)
                                 }
+                                
+                                NavigationLink(destination: YourJourneyView()) {
+                                    HStack {
+                                        Image(systemName: "chart.line.uptrend.xyaxis")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(.gray)
+                                            .frame(width: 28)
+                                        Text("Your journey")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(.white)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
                         
@@ -100,32 +117,6 @@ struct SettingsView: View {
                             }
                         }
                         
-                        // Stats Section
-                        SettingsSection(title: "Your journey") {
-                            VStack(spacing: 16) {
-                                HStack {
-                                    Image(systemName: "flame.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.orange)
-                                        .frame(width: 28)
-                                    StatRow(label: "Current streak", value: "\(streakManager.currentStreak) days")
-                                }
-                                HStack {
-                                    Image(systemName: "trophy.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.yellow)
-                                        .frame(width: 28)
-                                    StatRow(label: "Longest streak", value: "\(streakManager.longestStreak) days")
-                                }
-                                HStack {
-                                    Image(systemName: "star.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.blue)
-                                        .frame(width: 28)
-                                    StatRow(label: "Consistency tier", value: streakManager.consistencyTier)
-                                }
-                            }
-                        }
                         
                         // About Section
                         SettingsSection(title: "About") {

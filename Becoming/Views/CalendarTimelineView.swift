@@ -1,29 +1,29 @@
 import SwiftUI
-import UIKit
 import AVKit
 
 struct CalendarTimelineView: View {
     @EnvironmentObject var videoManager: VideoManager
     @EnvironmentObject var appState: AppState
     @Binding var selectedDate: Date
-    @State private var showingVideoPlayer = false
-    @State private var selectedVideo: VideoEntry?
     @State private var currentMonthIndex = 0
+    var onVideoSelected: ((VideoEntry) -> Void)? = nil
     
     private let calendar = Calendar.current
     private let visibleMonthRange = -12...12 // Show 12 months back and forward
+    
+    // Cache day headers for performance
+    private let dayHeaders = ["S", "M", "T", "W", "T", "F", "S"]
     
     var body: some View {
         VStack(spacing: 12) {
             // Day headers (fixed, not swiping)
             HStack {
-                ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
+                ForEach(dayHeaders, id: \.self) { day in
                     Text(day)
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity)
                         .frame(height: 14)
-                        
                 }
             }
             .padding(.horizontal, 20)
@@ -37,8 +37,7 @@ struct CalendarTimelineView: View {
                         videoManager: videoManager,
                         onVideoTap: { video in
                             HapticManager.shared.medium()
-                            selectedVideo = video
-                            showingVideoPlayer = true
+                            onVideoSelected?(video)
                         }
                     )
                     .environmentObject(appState)
@@ -49,7 +48,7 @@ struct CalendarTimelineView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 460)
+            .frame(height: 420)
         }
         .onAppear {
             currentMonthIndex = 0
@@ -67,11 +66,6 @@ struct CalendarTimelineView: View {
                 if let finalDate = calendar.date(from: components) {
                     selectedDate = finalDate
                 }
-            }
-        }
-        .sheet(isPresented: $showingVideoPlayer) {
-            if let video = selectedVideo {
-                VideoPlayerView(videoURL: video.videoURL, entry: video)
             }
         }
         .padding(.top, 16)
@@ -123,7 +117,7 @@ struct MonthGridView: View {
     }
     
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 18) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 14) {
             ForEach(calendarDays, id: \.self) { date in
                 let video = videoManager.getVideoForDate(date)
                 CalendarDayView(
@@ -221,20 +215,35 @@ struct CalendarDayView: View {
                         .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
                 }
                 
-                // Video indicator dot (only when no thumbnail)
+                // Rating indicator dot (or white dot if no rating)
                 if hasVideo && video?.thumbnailURL == nil {
                     VStack {
                         Spacer()
                         HStack {
                             Spacer()
                             Circle()
-                                .fill(Color.white)
+                                .fill(video?.ratingColor ?? Color.white)
                                 .frame(width: 8, height: 8)
                                 .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                                 .offset(x: -4, y: -4)
                                 .scaleEffect(isPressed ? 0.8 : 1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.8, blendDuration: 0), value: isPressed)
                         }
+                    }
+                }
+                
+                // Rating indicator dot on thumbnails (top right)
+                if video?.thumbnailURL != nil, let rating = video?.rating {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Circle()
+                                .fill(video?.ratingColor ?? Color.white)
+                                .frame(width: 8, height: 8)
+                                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                                .offset(x: -4, y: 4)
+                        }
+                        Spacer()
                     }
                 }
             }
@@ -271,73 +280,6 @@ struct CalendarDayView: View {
         } else {
             return Color.gray
         }
-    }
-}
-
-struct VideoPlayerView: View {
-    let videoURL: URL
-    let entry: VideoEntry
-    @Environment(\.dismiss) private var dismiss
-    @State private var player: AVPlayer?
-    @State private var isLoading = true
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Color(red: 0.06, green: 0.06, blue: 0.06).ignoresSafeArea()
-                
-                if let player = player {
-                    VideoPlayer(player: player)
-                        .edgesIgnoringSafeArea(.all)
-                        .onAppear {
-                            player.play()
-                        }
-                } else {
-                    // Loading state
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .tint(.white)
-                        Text("Loading video...")
-                            .foregroundColor(.gray)
-                    }
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        player?.pause()
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
-                }
-                ToolbarItem(placement: .principal) {
-                    Text(formattedDate(entry.date))
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-            }
-        }
-        .onAppear {
-            // Initialize player on main thread with slight delay for modal to present
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                let newPlayer = AVPlayer(url: videoURL)
-                self.player = newPlayer
-                newPlayer.play()
-            }
-        }
-        .onDisappear {
-            player?.pause()
-            player = nil
-        }
-        .preferredColorScheme(.dark)
-    }
-    
-    private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
     }
 }
 

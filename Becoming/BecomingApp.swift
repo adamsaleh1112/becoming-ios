@@ -23,7 +23,6 @@ struct BecomingApp: App {
     }
     
     private func setupApp() {
-        notificationManager.requestPermission()
         streakManager.checkDailyStreak()
     }
 }

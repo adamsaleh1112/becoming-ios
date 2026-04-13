@@ -3,60 +3,84 @@ import UIKit
 class HapticManager {
     static let shared = HapticManager()
     
-    private init() {}
+    // Cached generators for better performance
+    private let lightGenerator = UIImpactFeedbackGenerator(style: .light)
+    private let mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let softGenerator = UIImpactFeedbackGenerator(style: .soft)
+    private let rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
+    private let notificationGenerator = UINotificationFeedbackGenerator()
+    private let selectionGenerator = UISelectionFeedbackGenerator()
     
-    // Create fresh generators each time to avoid invalidation issues
+    private init() {
+        // Pre-prepare all generators for instant response
+        lightGenerator.prepare()
+        mediumGenerator.prepare()
+        softGenerator.prepare()
+        rigidGenerator.prepare()
+        notificationGenerator.prepare()
+        selectionGenerator.prepare()
+    }
+    
     func light() {
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.prepare()
-        generator.impactOccurred()
+        lightGenerator.impactOccurred()
+        // Re-prepare for next use
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.lightGenerator.prepare()
+        }
     }
     
     func medium() {
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.prepare()
-        generator.impactOccurred()
+        mediumGenerator.impactOccurred()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.mediumGenerator.prepare()
+        }
     }
     
     func soft() {
-        let generator = UIImpactFeedbackGenerator(style: .soft)
-        generator.prepare()
-        generator.impactOccurred()
+        softGenerator.impactOccurred()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.softGenerator.prepare()
+        }
     }
     
     func rigid() {
-        let generator = UIImpactFeedbackGenerator(style: .rigid)
-        generator.prepare()
-        generator.impactOccurred()
+        rigidGenerator.impactOccurred()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.rigidGenerator.prepare()
+        }
     }
     
     func success() {
-        let generator = UINotificationFeedbackGenerator()
-        generator.prepare()
-        generator.notificationOccurred(.success)
+        notificationGenerator.notificationOccurred(.success)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.notificationGenerator.prepare()
+        }
     }
     
     func warning() {
-        let generator = UINotificationFeedbackGenerator()
-        generator.prepare()
-        generator.notificationOccurred(.warning)
+        notificationGenerator.notificationOccurred(.warning)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.notificationGenerator.prepare()
+        }
     }
     
     func error() {
-        let generator = UINotificationFeedbackGenerator()
-        generator.prepare()
-        generator.notificationOccurred(.error)
+        notificationGenerator.notificationOccurred(.error)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.notificationGenerator.prepare()
+        }
     }
     
     func selection() {
-        let generator = UISelectionFeedbackGenerator()
-        generator.prepare()
-        generator.selectionChanged()
+        selectionGenerator.selectionChanged()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.selectionGenerator.prepare()
+        }
     }
     
-    // These are now no-ops since we create fresh generators
-    func prepareLight() {}
-    func prepareMedium() {}
-    func prepareSoft() {}
-    func prepareRigid() {}
+    // Explicit prepare methods for performance-critical sections
+    func prepareLight() { lightGenerator.prepare() }
+    func prepareMedium() { mediumGenerator.prepare() }
+    func prepareSoft() { softGenerator.prepare() }
+    func prepareRigid() { rigidGenerator.prepare() }
 }
