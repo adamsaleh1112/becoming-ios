@@ -6,19 +6,25 @@ enum AccentColorOption: String, CaseIterable {
     case orange = "Orange"
     case yellow = "Yellow"
     case green = "Green"
+    case cyan = "Cyan"
     case blue = "Blue"
     case purple = "Purple"
-    case gray = "Gray"
-    
+    case pink = "Pink"
+    case grey = "Grey"
+    case white = "White"
+
     var swiftUIColor: Color {
         switch self {
-        case .red: return .red
-        case .orange: return .orange
-        case .yellow: return .yellow
-        case .green: return .green
-        case .blue: return .blue
-        case .purple: return .purple
-        case .gray: return .gray
+        case .red: return Color(red: 0.902, green: 0.216, blue: 0.216) // #e63737
+        case .orange: return Color(red: 0.902, green: 0.467, blue: 0.216) // #e67737
+        case .yellow: return Color(red: 0.941, green: 0.769, blue: 0.290) // #f0c44a
+        case .green: return Color(red: 0.396, green: 0.678, blue: 0.231) // #65ad3b
+        case .cyan: return Color(red: 0.341, green: 0.851, blue: 0.851) // #57d9d9
+        case .blue: return Color(red: 0.098, green: 0.565, blue: 0.902) // #1990e6
+        case .purple: return Color(red: 0.427, green: 0.231, blue: 0.851) // #6d3bd9
+        case .pink: return Color(red: 0.969, green: 0.486, blue: 0.686) // #f77caf
+        case .grey: return Color(red: 0.529, green: 0.529, blue: 0.529) // #878787
+        case .white: return Color(red: 1.0, green: 1.0, blue: 1.0) // #ffffff
         }
     }
 }

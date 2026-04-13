@@ -253,15 +253,7 @@ struct DateHeaderView: View {
     }
     
     private var accentColor: Color {
-        switch appState.accentColor {
-        case .red: return .red
-        case .orange: return .orange
-        case .yellow: return .yellow
-        case .green: return .green
-        case .blue: return .blue
-        case .purple: return .purple
-        case .gray: return .gray
-        }
+        return appState.accentColor.swiftUIColor
     }
     
     private var monthNumber: String {
@@ -364,12 +356,12 @@ struct StreakCounterView: View {
         HStack(spacing: 12) {
             // Fire icon
             Image(systemName: "flame.fill")
-                .font(.system(size: 24, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(streakColor)
             
             // Streak count
             Text("\(streakManager.currentStreak)")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(.system(size: 24, weight: .bold, design: .rounded))
                 .foregroundColor(streakColor)
         }
         .padding(.horizontal, 26)
@@ -669,7 +661,7 @@ struct StreakPopup: View {
             HStack(spacing: 16) {
                 // Fire icon to the left of the number
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 48, weight: .semibold))
+                    .font(.system(size: 36, weight: .semibold))
                     .foregroundColor(streakColor)
                 
                 Text("\(streakManager.currentStreak)")

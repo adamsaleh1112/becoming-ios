@@ -187,6 +187,21 @@ struct CalendarDayView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(isSelected ? appState.accentColor.swiftUIColor : Color.clear, lineWidth: 2)
                         )
+                        .overlay(
+                            // Small day number in top left
+                            HStack {
+                                VStack {
+                                    Text(dayFormatter.string(from: date))
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                        .shadow(color: .black.opacity(0.6), radius: 2, x: 0, y: 1)
+                                        .padding(.leading, 6)
+                                        .padding(.top, 4)
+                                    Spacer()
+                                }
+                                Spacer()
+                            }
+                        )
                 } else {
                     // Day number (shown when no thumbnail)
                     Text(dayFormatter.string(from: date))
@@ -232,18 +247,18 @@ struct CalendarDayView: View {
                     }
                 }
                 
-                // Rating indicator dot on thumbnails (top right)
+                // Rating indicator dot on thumbnails (bottom right)
                 if video?.thumbnailURL != nil, let rating = video?.rating {
                     VStack {
+                        Spacer()
                         HStack {
                             Spacer()
                             Circle()
                                 .fill(video?.ratingColor ?? Color.white)
                                 .frame(width: 8, height: 8)
                                 .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                                .offset(x: -4, y: 4)
+                                .offset(x: -4, y: -4)
                         }
-                        Spacer()
                     }
                 }
             }
