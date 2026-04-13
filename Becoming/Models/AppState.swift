@@ -11,7 +11,6 @@ enum AccentColorOption: String, CaseIterable {
     case purple = "Purple"
     case pink = "Pink"
     case grey = "Grey"
-    case white = "White"
 
     var swiftUIColor: Color {
         switch self {
@@ -24,7 +23,6 @@ enum AccentColorOption: String, CaseIterable {
         case .purple: return Color(red: 0.427, green: 0.231, blue: 0.851) // #6d3bd9
         case .pink: return Color(red: 0.969, green: 0.486, blue: 0.686) // #f77caf
         case .grey: return Color(red: 0.529, green: 0.529, blue: 0.529) // #878787
-        case .white: return Color(red: 1.0, green: 1.0, blue: 1.0) // #ffffff
         }
     }
 }
