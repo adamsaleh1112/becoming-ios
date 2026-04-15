@@ -1,4 +1,4 @@
-# ![alt text](https://ibb.co/gZyQL5Gf) Becoming
+# Becoming
 
 **Talk to your future self.**
 
